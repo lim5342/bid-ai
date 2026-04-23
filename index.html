@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>경매부스터 — AI 경매 투자 분석 플랫폼</title>
+<link rel="stylesheet" href="css/design-system.css">
+<style>
+* { box-sizing: border-box; }
+body { background: var(--bg-white); }
+.landing-header { position: sticky; top: 40px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 100; padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+.landing-logo { display:flex; align-items:center; gap:10px; }
+.landing-logo .lm { width:36px; height:36px; background:linear-gradient(135deg,#4F3CC9,#FF6B35); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; color:white; }
+.landing-logo .lt { font-size:17px; font-weight:800; color:var(--text-primary); }
+.landing-nav { display:flex; align-items:center; gap:28px; }
+.landing-nav a { font-size:14px; font-weight:600; color:var(--text-secondary); transition:color 0.15s; }
+.landing-nav a:hover { color:var(--primary); }
+.landing-nav .cta { background:var(--primary); color:white; padding:8px 20px; border-radius:var(--radius-sm); font-size:14px; font-weight:700; }
+.hero { background: linear-gradient(135deg, #1E1B4B 0%, #2D2A6E 50%, #1E1B4B 100%); color: white; padding: 80px 40px 60px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, rgba(79,60,201,0.4) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(255,107,53,0.2) 0%, transparent 60%); }
+.hero-content { position:relative; z-index:1; max-width:760px; margin:0 auto; }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 20px; }
+.hero h1 { font-size: 48px; font-weight: 900; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.02em; }
+.hero h1 span { color: #FF8C5A; }
+.hero p { font-size: 17px; color: rgba(255,255,255,0.75); margin-bottom: 32px; line-height: 1.7; }
+.hero-cta { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px; }
+.btn-hero-primary { background: var(--accent); color: white; padding: 16px 36px; border-radius: var(--radius-md); font-size: 16px; font-weight: 800; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.btn-hero-outline { background: rgba(255,255,255,0.1); color: white; padding: 16px 32px; border-radius: var(--radius-md); font-size: 16px; font-weight: 700; border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.hero-stats { display:flex; gap:40px; justify-content:center; flex-wrap:wrap; }
+.hero-stat { text-align:center; }
+.hero-stat .num { font-size:28px; font-weight:900; color:white; }
+.hero-stat .lbl { font-size:12px; color:rgba(255,255,255,0.55); margin-top:2px; }
+.section { padding: 64px 40px; }
+.section-center { text-align:center; max-width:640px; margin:0 auto 40px; }
+.section-label { font-size:12px; font-weight:700; color:var(--primary); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+.section-title { font-size:32px; font-weight:900; color:var(--text-primary); line-height:1.25; margin-bottom:12px; }
+.section-sub { font-size:15px; color:var(--text-secondary); line-height:1.7; }
+.feature-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px; max-width:1100px; margin:0 auto; }
+.feature-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 24px; transition: all 0.2s; }
+.feature-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); border-color: var(--primary-light); }
+.fc-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:16px; }
+.fc-title { font-size:17px; font-weight:800; margin-bottom:8px; }
+.fc-desc { font-size:13px; color:var(--text-secondary); line-height:1.7; margin-bottom:14px; }
+.fc-link { font-size:13px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:4px; }
+.compare-section { background: var(--bg); }
+.compare-table { max-width:900px; margin:0 auto; }
+.compare-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 0; border-bottom: 1px solid var(--border); }
+.compare-cell { padding: 14px 20px; font-size: 13px; }
+.compare-cell.header { font-weight: 800; font-size: 14px; }
+.compare-cell.highlight { background: rgba(79,60,201,0.04); border-left: 3px solid var(--primary); }
+.compare-check { color: var(--success); font-weight: 700; }
+.compare-x { color: var(--text-muted); }
+.pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:760px; margin:0 auto; }
+.pricing-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px 28px; }
+.pricing-card.featured { border-color: var(--primary); background: linear-gradient(135deg, rgba(79,60,201,0.03), rgba(79,60,201,0.06)); position: relative; }
+.price-tag-sm { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--primary); color:white; border-radius:20px; padding:4px 16px; font-size:12px; font-weight:700; white-space:nowrap; }
+.plan-name { font-size:14px; font-weight:700; color:var(--text-secondary); margin-bottom:8px; }
+.plan-price { font-size:36px; font-weight:900; color:var(--text-primary); line-height:1; margin-bottom:4px; }
+.plan-price span { font-size:15px; font-weight:500; }
+.plan-desc { font-size:12px; color:var(--text-muted); margin-bottom:20px; }
+.plan-features { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+.plan-features li { font-size:13px; color:var(--text-secondary); display:flex; align-items:center; gap:8px; }
+.plan-features li::before { content:'✓'; color:var(--success); font-weight:700; flex-shrink:0; }
+.cta-banner { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; text-align: center; padding: 64px 40px; }
+.cta-banner h2 { font-size: 32px; font-weight: 900; margin-bottom: 12px; }
+.cta-banner p { font-size: 15px; opacity: 0.8; margin-bottom: 28px; }
+.landing-footer { background: #1E1B4B; color: rgba(255,255,255,0.6); padding: 40px; }
+.footer-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr; gap:32px; }
+.footer-brand .fb-name { font-size:16px; font-weight:800; color:white; margin-bottom:8px; }
+.footer-brand .fb-desc { font-size:12px; line-height:1.7; }
+.footer-col h4 { font-size:12px; font-weight:700; color:white; margin-bottom:12px; }
+.footer-col a { display:block; font-size:12px; margin-bottom:6px; color:rgba(255,255,255,0.5); }
+.footer-bottom { max-width:1100px; margin:24px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); font-size:11px; color:rgba(255,255,255,0.3); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+@media (max-width: 768px) { .hero h1 { font-size: 30px; } .section { padding: 40px 20px; } .landing-header { padding: 0 20px; } .pricing-grid { grid-template-columns: 1fr; } .footer-inner { grid-template-columns: 1fr; } .landing-nav a:not(.cta) { display: none; } }
+</style>
+</head>
+<body>
+<div class="test-banner" id="testBanner" style="background:linear-gradient(90deg,#FF6B35,#FF8C5A);color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:600;position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:8px;">
+  <span style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:2px 10px;font-size:11px;">TEST MODE</span>
+  🧪 테스트 모드 — 로그인 없이 모든 기능을 체험할 수 있습니다
+  <button onclick="document.getElementById('testBanner').style.display='none'" style="background:none;border:none;color:white;font-size:18px;line-height:1;margin-left:12px;cursor:pointer;">×</button>
+</div>
+<header class="landing-header">
+  <div class="landing-logo"><div class="lm">B</div><div class="lt">경매부스터</div></div>
+  <nav class="landing-nav">
+    <a href="#features">기능</a><a href="#compare">비교</a><a href="#pricing">요금제</a>
+    <a href="dashboard.html" class="cta">🚀 무료 체험 시작</a>
+  </nav>
+</header>
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">✨ 베타 테스트 참여 중 · PLUS 기능 무료 제공</div>
+    <h1>경매 투자,<br><span>AI가 5분 만에</span> 분석해드립니다</h1>
+    <p>시세분석 · 투자등급 · 경매 권리분석 · 지역 추천<br>300만 건 부동산 데이터 + 자체 AI 엔진으로 정확하게</p>
+    <div class="hero-cta">
+      <a href="dashboard.html" class="btn-hero-primary">🔍 지금 바로 분석해보기</a>
+      <a href="villa-analysis.html" class="btn-hero-outline">📊 AI 시세분석 체험</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">300만+</div><div class="lbl">부동산 데이터</div></div>
+      <div class="hero-stat"><div class="num">2,497</div><div class="lbl">전국 행정동 커버</div></div>
+      <div class="hero-stat"><div class="num">87%</div><div class="lbl">AI 시세 신뢰도</div></div>
+      <div class="hero-stat"><div class="num">5분</div><div class="lbl">분석 완료 시간</div></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="features">
+  <div class="section-center">
+    <div class="section-label">Core Features</div>
+    <div class="section-title">하나의 플랫폼으로<br>모든 경매 투자 분석을</div>
+    <div class="section-sub">KB시세가 없는 빌라도 AI가 즉시 시세를 추정합니다. 경매 권리분석부터 지역 투자 등급까지 한 번에.</div>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="fc-icon" style="background:rgba(79,60,201,0.1);">🤖</div><div class="fc-title">AI 시세분석 (AVM)</div><div class="fc-desc">주소 입력만으로 AI가 실거래가·호가·경매 낙찰가를 종합해 추정 시세를 즉시 산출합니다.</div><a href="villa-analysis.html" class="fc-link">체험해보기 →</a></div>
+    <div class="feature-card"><div class="fc-icon" style="background:rgba(245,158,11,0.1);">⚖️</div><div class="fc-title">경매 권리분석</div><div class="fc-desc">대항력·선순위임차권·유치권·법정지상권 등 특수권리를 AI가 자동 판단. 입찰 전 리스크를 한눈에.</div><a href="auction.html" class="fc-link">체험해보기 →</a></div>
+    <div class="feature-card"><div class="fc-icon" style="background:rgba(16,185,129,0.1);">📊</div><div class="fc-title">투자 등급 분석</div><div class="fc-desc">S~D 5단계 투자등급과 함께 수익률·전세가율·리스크 항목을 종합 리포트로 제공합니다.</div><a href="dashboard.html" class="fc-link">체험해보기 →</a></div>
+    <div class="feature-card"><div class="fc-icon" style="background:rgba(59,130,246,0.1);">📍</div><div class="fc-title">AI 지역 추천</div><div class="fc-desc">2,497개 행정동의 거래량·가격변동·낙찰가율·재개발 호재를 종합해 이달의 투자 유망 지역을 추천합니다.</div><a href="region.html" class="fc-link">체험해보기 →</a></div>
+    <div class="feature-card"><div class="fc-icon" style="background:rgba(239,68,68,0.1);">📈</div><div class="fc-title">시세 추이 분석</div><div class="fc-desc">매매·전세 시세 12개월 추이와 변동률을 시각화해 시장 타이밍을 포착합니다.</div><a href="dashboard.html" class="fc-link">체험해보기 →</a></div>
+    <div class="feature-card"><div class="fc-icon" style="background:rgba(139,92,246,0.1);">🏘️</div><div class="fc-title">비교 사례 검색</div><div class="fc-desc">반경 300m 내 유사 면적 실거래 사례를 자동 매칭해 시세 산출 근거를 투명하게 제공합니다.</div><a href="villa-analysis.html" class="fc-link">체험해보기 →</a></div>
+  </div>
+</section>
+<section class="section compare-section" id="compare">
+  <div class="section-center">
+    <div class="section-label">Before vs After</div>
+    <div class="section-title">기존 방식 vs 경매부스터</div>
+    <div class="section-sub">반나절 걸리던 분석을 5분으로 줄입니다</div>
+  </div>
+  <div class="compare-table">
+    <div class="compare-row"><div class="compare-cell header">분석 항목</div><div class="compare-cell header">기존 방식</div><div class="compare-cell header highlight" style="color:var(--primary);">✨ 경매부스터</div></div>
+    <div class="compare-row"><div class="compare-cell" style="font-weight:600;">빌라 시세 파악</div><div class="compare-cell compare-x">인터넷 수동 검색 (2~3시간)</div><div class="compare-cell highlight compare-check">주소 입력 → AI 즉시 (30초)</div></div>
+    <div class="compare-row"><div class="compare-cell" style="font-weight:600;">경매 권리분석</div><div class="compare-cell compare-x">등기부 수백장 수동 검토 (4시간+)</div><div class="compare-cell highlight compare-check">AI 자동 판단 (즉시)</div></div>
+    <div class="compare-row"><div class="compare-cell" style="font-weight:600;">투자 등급 판단</div><div class="compare-cell compare-x">전문가 의존 또는 감에 의존</div><div class="compare-cell highlight compare-check">S~D 5단계 + 근거 자동 제시</div></div>
+    <div class="compare-row"><div class="compare-cell" style="font-weight:600;">비교 사례 수집</div><div class="compare-cell compare-x">국토부 실거래가 직접 조회 (1시간)</div><div class="compare-cell highlight compare-check">반경 300m 자동 매칭 (즉시)</div></div>
+    <div class="compare-row"><div class="compare-cell" style="font-weight:600;">지역 유망도 파악</div><div class="compare-cell compare-x">뉴스·커뮤니티 개인 정보 수집</div><div class="compare-cell highlight compare-check">2,497개 행정동 AI 자동 랭킹</div></div>
+  </div>
+</section>
+<section class="section" id="pricing">
+  <div class="section-center">
+    <div class="section-label">Pricing</div>
+    <div class="section-title">베타 기간 중<br>PLUS 기능 무료<span class="cursor">█</span>
