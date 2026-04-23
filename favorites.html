@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>즐겨찾기 — 경매부스터</title>
+<link rel="stylesheet" href="css/design-system.css">
+<style>
+.fav-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 10px;
+}
+.fav-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); }
+.fav-card-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: rgba(79,60,201,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.fav-card-info { flex: 1; }
+.fav-card-addr { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.fav-card-meta { font-size: 12px; color: var(--text-secondary); }
+.fav-card-right { text-align: right; flex-shrink: 0; }
+.fav-card-price { font-size: 16px; font-weight: 900; color: var(--primary); }
+.fav-card-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.fav-card-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+.empty-fav {
+  text-align: center;
+  padding: 80px 24px;
+}
+.empty-fav .big-icon { font-size: 64px; margin-bottom: 16px; }
+.empty-fav h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.empty-fav p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stats-strip-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 12px;
+  text-align: center;
+}
+.strip-num { font-size: 24px; font-weight: 900; color: var(--primary); }
+.strip-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="test-banner" id="testBanner">
+  <span class="badge">TEST MODE</span>
+  🧪 테스트 모드 — 로그인 없이 모든 기능 체험 가능
+  <button onclick="document.getElementById('testBanner').style.display='none'" style="background:none;border:none;color:white;font-size:18px;line-height:1;margin-left:12px;cursor:pointer;">×</button>
+</div>
+
+<div class="app-layout">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">B</div>
+      <div><div class="logo-text">경매부스터</div><div class="logo-sub">PLUS 체험 중</div></div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">메인</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> 대시보드</a>
+      <a href="villa-analysis.html" class="nav-item"><span class="nav-icon">🔍</span> AI 시세분석</a>
+      <a href="auction.html" class="nav-item"><span class="nav-icon">⚖️</span> 경매 권리분석</a>
+      <a href="region.html" class="nav-item"><span class="nav-icon">📍</span> 지역 추천</a>
+      <a href="favorites.html" class="nav-item active"><span class="nav-icon">⭐</span> 즐겨찾기</a>
+      <div class="nav-section-label">정보</div>
+      <a href="index.html" class="nav-item"><span class="nav-icon">🌐</span> 서비스 소개</a>
+    </div>
+    <div class="sidebar-footer">테스트 계정으로 접속 중<br>경매부스터 v1.0 BETA</div>
+  </nav>
+
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <span style="font-size:20px">⭐</span>
+        <span class="header-title">즐겨찾기</span>
+      </div>
+      <div class="header-right">
+        <a href="villa-analysis.html" class="btn btn-primary btn-sm">+ 새 물건 분석</a>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- 통계 -->
+      <div class="stats-strip" id="statsStrip">
+        <div class="stats-strip-item">
+          <div class="strip-num" id="statTotal">0</div>
+          <div class="strip-label">저장된 물건</div>
+        </div>
+        <div class="stats-strip-item">
+          <div class="strip-num" id="statA" style="color:var(--success);">0</div>
+          <div class="strip-label">A등급 이상</div>
+        </div>
+        <div class="stats-strip-item">
+          <div class="strip-num" id="statRecent">0</div>
+          <div class="strip-label">최근 분석</div>
+        </div>
+        <div class="stats-strip-item">
+          <div class="strip-num" id="statAvgPrice" style="font-size:16px;">—</div>
+          <div class="strip-label">평균 추정 시세</div>
+        </div>
+      </div>
+
+      <!-- 탭 -->
+      <div class="tabs">
+        <div class="tab-item active" onclick="switchTab('favs', this)">⭐ 즐겨찾기 <span id="favCount" style="background:rgba(79,60,201,0.1);color:var(--primary);padding:1px 7px;border-radius:20px;font-size:11px;margin-left:4px;">0</span></div>
+        <div class="tab-item" onclick="switchTab('recent', this)">🕑 최근 분석 이력</div>
+      </div>
+
+      <!-- 즐겨찾기 목록 -->
+      <div id="tab-favs">
+        <div id="favList"></div>
+      </div>
+
+      <!-- 최근 이력 -->
+      <div id="tab-recent" style="display:none;">
+        <div id="recentList"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+let favorites = JSON.parse(localStorage.getItem('villa_favs') || '[]');
+let recentList = JSON.parse(localStorage.getItem('villa_recent') || '[]');
+
+// Mock 가격/등급 매핑
+const mockData = {
+  '서울시 마포구 아현동 799-14': { price:'2억 6,500만', grade:'A', date:'2026.04.17' },
+  '서울시 성북구 장위동 303-45': { price:'2억 1,200만', grade:'A', date:'2026.04.17' },
+  '인천시 부평구 부평동 152-8': { price:'1억 1,200만', grade:'B', date:'2026.04.17' },
+  '경기 수원시 팔달구 우만동 55-22': { price:'1억 9,800만', grade:'A', date:'2026.04.17' },
+};
+function getMock(addr) {
+  return mockData[addr] || { price:'시세 분석 중', grade:'B', date:'2026.04.17' };
+}
+
+function renderFavs() {
+  const el = document.getElementById('favList');
+  document.getElementById('favCount').textContent = favorites.length;
+  document.getElementById('statTotal').textContent = favorites.length;
+  document.getElementById('statA').textContent = favorites.filter(f => getMock(f).grade === 'A').length;
+  document.getElementById('statRecent').textContent = recentList.length;
+  document.getElementById('statAvgPrice').textContent = favorites.length ? '2억 2천만' : '—';
+
+  if (!favorites.length) {
+    el.innerHTML = `
+      <div class="empty-fav">
+        <div class="big-icon">🤍</div>
+        <h3>아직 저장된 물건이 없습니다</h3>
+        <p>AI 시세분석 후 ⭐ 버튼을 눌러 즐겨찾기에 추가하세요</p>
+        <a href="villa-analysis.html" class="btn btn-primary">🔍 지금 분석 시작하기</a>
+      </div>
+    `;
+    return;
+  }
+
+  el.innerHTML = favorites.map((addr, idx) => {
+    const m = getMock(addr);
+    return `
+      <div class="fav-card" onclick="goAnalysis('${addr}')">
+        <div class="fav-card-icon">🏠</div>
+        <div class="fav-card-info">
+          <div class="fav-card-addr">${addr}</div>
+          <div class="fav-card-meta">빌라/연립 · AI 분석 완료 · ${m.date}</div>
+          <div class="fav-card-actions" onclick="event.stopPropagation()">
+            <a href="villa-analysis.html" class="btn btn-outline btn-sm" style="font-size:11px;">🔄 재분석</a>
+            <a href="auction.html" class="btn btn-outline btn-sm" style="font-size:11px;">⚖️ 권리분석</a>
+            <button class="btn btn-outline btn-sm" style="font-size:11px; color:var(--danger);" onclick="removeFav(${idx})">🗑️ 삭제</button>
+          </div>
+        </div>
+        <div class="fav-card-right">
+          <div class="fav-card-price">${m.price}</div>
+          <div style="margin-top:4px;"><span class="grade-tag ${m.grade}">${m.grade}등급</span></div>
+          <div class="fav-card-date">${m.date}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderRecent() {
+  const el = document.getElementById('recentList');
+  if (!recentList.length) {
+    el.innerHTML = `
+      <div class="empty-fav">
+        <div class="big-icon">🕑</div>
+        <h3>분석 이력이 없습니다</h3>
+        <p>주소를 검색하면 자동으로 이력이 저장됩니다</p>
+        <a href="dashboard.html" class="btn btn-primary">🏠 대시보드로 이동</a>
+      </div>
+    `;
+    return;
+  }
+  el.innerHTML = recentList.map((r, idx) => `
+    <div class="fav-card" onclick="window.location.href='villa-analysis.html'">
+      <div class="fav-card-icon">🕑</div>
+      <div class="fav-card-info">
+        <div class="fav-card-addr">${r.addr}</div>
+        <div class="fav-card-meta">최근 분석 · ${r.time}</div>
+        <div class="fav-card-actions" onclick="event.stopPropagation()">
+          <a href="villa-analysis.html" class="btn btn-outline btn-sm" style="font-size:11px;">🔍 다시 분석</a>
+          <button class="btn btn-outline btn-sm" style="font-size:11px;" onclick="addToFav('${r.addr}', ${idx})">⭐ 즐겨찾기</button>
+        </div>
+      </div>
+      <div class="fav-card-right">
+        <div class="fav-card-price">${r.price || '—'}</div>
+        <div style="margin-top:4px;"><span class="grade-tag ${r.grade || 'B'}">${r.grade || 'B'}등급</span></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeFav(idx) {
+  if (confirm('즐겨찾기에서 삭제할까요?')) {
+    favorites.splice(idx, 1);
+    localStorage.setItem('villa_favs', JSON.stringify(favorites));
+    renderFavs();
+  }
+}
+
+function addToFav(addr) {
+  if (!favorites.includes(addr)) {
+    favorites.push(addr);
+    localStorage.setItem('villa_favs', JSON.stringify(favorites));
+    alert('⭐ 즐겨찾기에 추가됐습니다!');
+    renderFavs();
+  } else {
+    alert('이미 즐겨찾기에 있습니다.');
+  }
+}
+
+function goAnalysis(addr) {
+  window.location.href = 'villa-analysis.html';
+}
+
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#tab-favs, #tab-recent').forEach(p => p.style.display = 'none');
+  el.classList.add('active');
+  document.getElementById('tab-' + tabId).style.display = 'block';
+}
+
+renderFavs();
+renderRecent();
+</script>
+</body>
+</html>

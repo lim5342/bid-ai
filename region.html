@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지역 추천 — 경매부스터</title>
+<link rel="stylesheet" href="css/design-system.css">
+<style>
+.region-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:14px; }
+
+.region-card-full {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.region-card-full:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.region-card-full.featured { border-color: var(--primary); background: rgba(79,60,201,0.02); }
+
+.region-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.region-title { font-size:15px; font-weight:800; }
+.region-sub { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+.region-stats { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px; }
+.region-stat { background:var(--bg); border-radius:6px; padding:8px 10px; }
+.rs-label { font-size:10px; color:var(--text-muted); }
+.rs-value { font-size:14px; font-weight:800; color:var(--text-primary); margin-top:2px; }
+.rs-value.up { color:var(--success); }
+.rs-value.down { color:var(--danger); }
+.region-bar-section { margin-bottom:8px; }
+.rbs-label { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; }
+.rbs-label span:first-child { color:var(--text-secondary); }
+.rbs-label span:last-child { font-weight:700; }
+
+.filter-bar { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+.filter-chip {
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: white;
+}
+.filter-chip:hover, .filter-chip.active { border-color: var(--primary); color: var(--primary); background: rgba(79,60,201,0.05); }
+
+.rank-badge {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px; height:22px;
+  border-radius:50%;
+  font-size:11px;
+  font-weight:900;
+  color:white;
+  flex-shrink:0;
+}
+.rank-badge.gold { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+.rank-badge.silver { background: linear-gradient(135deg, #9CA3AF, #D1D5DB); }
+.rank-badge.bronze { background: linear-gradient(135deg, #B45309, #D97706); }
+.rank-badge.normal { background: var(--primary); font-size:10px; }
+
+.map-placeholder {
+  background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%);
+  border-radius: var(--radius-md);
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.map-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: 0.7;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 0.4; }
+}
+</style>
+</head>
+<body>
+<div class="test-banner" id="testBanner">
+  <span class="badge">TEST MODE</span>
+  🧪 테스트 모드 — 로그인 없이 모든 기능 체험 가능
+  <button onclick="document.getElementById('testBanner').style.display='none'" style="background:none;border:none;color:white;font-size:18px;line-height:1;margin-left:12px;cursor:pointer;">×</button>
+</div>
+
+<div class="app-layout">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">B</div>
+      <div><div class="logo-text">경매부스터</div><div class="logo-sub">PLUS 체험 중</div></div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">메인</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> 대시보드</a>
+      <a href="villa-analysis.html" class="nav-item"><span class="nav-icon">🔍</span> AI 시세분석</a>
+      <a href="auction.html" class="nav-item"><span class="nav-icon">⚖️</span> 경매 권리분석</a>
+      <a href="region.html" class="nav-item active"><span class="nav-icon">📍</span> 지역 추천</a>
+      <a href="favorites.html" class="nav-item"><span class="nav-icon">⭐</span> 즐겨찾기</a>
+      <div class="nav-section-label">정보</div>
+      <a href="index.html" class="nav-item"><span class="nav-icon">🌐</span> 서비스 소개</a>
+    </div>
+    <div class="sidebar-footer">테스트 계정으로 접속 중<br>경매부스터 v1.0 BETA</div>
+  </nav>
+
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <span style="font-size:20px">📍</span>
+        <span class="header-title">AI 지역 추천</span>
+      </div>
+      <div class="header-right">
+        <span class="ai-badge">✨ Location AI</span>
+        <span class="header-badge">PLUS 체험</span>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- 맵 플레이스홀더 -->
+      <div class="map-placeholder">
+        <div class="map-dot" style="width:20px;height:20px;top:35%;left:38%;"></div>
+        <div class="map-dot" style="width:14px;height:14px;top:42%;left:45%;animation-delay:0.5s;"></div>
+        <div class="map-dot" style="width:16px;height:16px;top:30%;left:55%;animation-delay:1s;"></div>
+        <div class="map-dot" style="width:12px;height:12px;top:60%;left:30%;animation-delay:0.3s;background:var(--accent);"></div>
+        <div class="map-dot" style="width:18px;height:18px;top:50%;left:65%;animation-delay:0.8s;"></div>
+        <div style="font-size:32px; z-index:1;">🗺️</div>
+        <div style="font-size:14px; font-weight:700; color:var(--text-primary); z-index:1;">전국 투자 등급 히트맵</div>
+        <div style="font-size:11px; color:var(--text-secondary); z-index:1;">실서비스에서는 실시간 지도 표시 / 현재는 리스트 뷰로 확인</div>
+      </div>
+
+      <!-- 필터 -->
+      <div class="filter-bar">
+        <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">지역:</span>
+        <div class="filter-chip active" onclick="setFilter(this,'region','all')">전체</div>
+        <div class="filter-chip" onclick="setFilter(this,'region','seoul')">서울</div>
+        <div class="filter-chip" onclick="setFilter(this,'region','gyeonggi')">경기</div>
+        <div class="filter-chip" onclick="setFilter(this,'region','incheon')">인천</div>
+        <div class="filter-chip" onclick="setFilter(this,'region','busan')">부산</div>
+        <div style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>
+        <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">등급:</span>
+        <div class="filter-chip active" onclick="setFilter(this,'grade','all')">전체</div>
+        <div class="filter-chip" onclick="setFilter(this,'grade','S')">S등급</div>
+        <div class="filter-chip" onclick="setFilter(this,'grade','A')">A등급</div>
+        <div class="filter-chip" onclick="setFilter(this,'grade','B')">B등급</div>
+      </div>
+
+      <!-- 상단 랭킹 -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">🏆</span>이달의 AI 추천 TOP 5</div>
+          <span style="font-size:11px; color:var(--text-muted);">2026년 4월 기준</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="fav-list-item" style="padding:12px 14px;" onclick="filterByRegion('마포구')">
+            <div class="rank-badge gold">1</div>
+            <div style="font-size:18px;">🥇</div>
+            <div>
+              <div class="fav-addr">서울 마포구 아현·공덕동</div>
+              <div class="fav-meta">역세권 + 재개발 호재 · 거래량 ↑↑↑</div>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+              <span class="grade-tag S">S</span>
+              <span style="font-size:13px; font-weight:800; color:var(--success);">+11.4%</span>
+            </div>
+          </div>
+          <div class="fav-list-item" style="padding:12px 14px;" onclick="filterByRegion('성북구')">
+            <div class="rank-badge gold">2</div>
+            <div style="font-size:18px;">🥈</div>
+            <div>
+              <div class="fav-addr">서울 성북구 장위동</div>
+              <div class="fav-meta">장위뉴타운 사업 진행 중</div>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+              <span class="grade-tag A">A+</span>
+              <span style="font-size:13px; font-weight:800; color:var(--success);">+9.2%</span>
+            </div>
+          </div>
+          <div class="fav-list-item" style="padding:12px 14px;">
+            <div class="rank-badge silver">3</div>
+            <div style="font-size:18px;">🥉</div>
+            <div>
+              <div class="fav-addr">경기 수원시 팔달구</div>
+              <div class="fav-meta">수원역 일대 · 대단지 신축 예정</div>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+              <span class="grade-tag A">A</span>
+              <span style="font-size:13px; font-weight:800; color:var(--success);">+7.8%</span>
+            </div>
+          </div>
+          <div class="fav-list-item" style="padding:12px 14px;">
+            <div class="rank-badge bronze">4</div>
+            <div style="font-size:18px;">📍</div>
+            <div>
+              <div class="fav-addr">인천 미추홀구 주안동</div>
+              <div class="fav-meta">GTX 호재 · 경매 낙찰가율 상승</div>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+              <span class="grade-tag A">A-</span>
+              <span style="font-size:13px; font-weight:800; color:var(--success);">+6.5%</span>
+            </div>
+          </div>
+          <div class="fav-list-item" style="padding:12px 14px;">
+            <div class="rank-badge normal">5</div>
+            <div style="font-size:18px;">📍</div>
+            <div>
+              <div class="fav-addr">서울 노원구 월계·상계</div>
+              <div class="fav-meta">저가 매수 기회 · 학군 우수</div>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+              <span class="grade-tag B">B+</span>
+              <span style="font-size:13px; font-weight:800; color:var(--success);">+5.1%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 지역별 상세 카드 -->
+      <div style="font-size:15px; font-weight:700; margin-bottom:12px;">전체 지역 분석 <span style="color:var(--text-muted); font-weight:400; font-size:13px;">(18개 주요 지역)</span></div>
+      <div class="region-grid" id="regionGrid">
+        <!-- JS로 렌더링 -->
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const regions = [
+  { name:'마포구 아현·공덕', city:'서울', grade:'S', price:'2억 6,500만', change:'+11.4%', changeDir:'up', trade:128, auctionRate:'91%', score:94, tags:['역세권','재개발','거래활발'], featured:true },
+  { name:'성북구 장위동', city:'서울', grade:'A', price:'2억 1,200만', change:'+9.2%', changeDir:'up', trade:84, auctionRate:'87%', score:88, tags:['뉴타운','호재'], featured:true },
+  { name:'팔달구 우만동', city:'수원', grade:'A', price:'1억 9,800만', change:'+7.8%', changeDir:'up', trade:72, auctionRate:'85%', score:84, tags:['역세권','신축예정'], featured:false },
+  { name:'미추홀구 주안동', city:'인천', grade:'A', price:'1억 3,500만', change:'+6.5%', changeDir:'up', trade:61, auctionRate:'82%', score:81, tags:['GTX호재','저가'], featured:false },
+  { name:'노원구 상계·월계', city:'서울', grade:'B', price:'1억 7,800만', change:'+5.1%', changeDir:'up', trade:55, auctionRate:'80%', score:76, tags:['학군','저가매수'], featured:false },
+  { name:'부평구 부평동', city:'인천', grade:'B', price:'1억 1,200만', change:'+4.8%', changeDir:'up', trade:48, auctionRate:'78%', score:74, tags:['저가','GTX'], featured:false },
+  { name:'관악구 봉천동', city:'서울', grade:'B', price:'2억 2,000만', change:'+3.9%', changeDir:'up', trade:43, auctionRate:'76%', score:72, tags:['대학가','임대수요'], featured:false },
+  { name:'금정구 구서동', city:'부산', grade:'B', price:'1억 4,800만', change:'+3.2%', changeDir:'up', trade:38, auctionRate:'74%', score:70, tags:['지방광역','저가'], featured:false },
+  { name:'동두천시 중앙동', city:'경기', grade:'C', price:'7,500만', change:'-1.2%', changeDir:'down', trade:22, auctionRate:'65%', score:52, tags:['저가','공급과잉주의'], featured:false },
+];
+
+function renderRegions(list) {
+  document.getElementById('regionGrid').innerHTML = list.map(r => `
+    <div class="region-card-full ${r.featured ? 'featured' : ''}" onclick="goAnalysis('${r.name}')">
+      <div class="region-top">
+        <div>
+          <div class="region-title">${r.name}</div>
+          <div class="region-sub">${r.city}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <span class="grade-tag ${r.grade}">${r.grade}등급</span>
+          <span style="font-size:13px; font-weight:800; color:${r.changeDir==='up'?'var(--success)':'var(--danger)'};">${r.change}</span>
+        </div>
+      </div>
+      <div class="region-stats">
+        <div class="region-stat">
+          <div class="rs-label">평균 시세</div>
+          <div class="rs-value">${r.price}</div>
+        </div>
+        <div class="region-stat">
+          <div class="rs-label">6개월 거래량</div>
+          <div class="rs-value">${r.trade}건</div>
+        </div>
+        <div class="region-stat">
+          <div class="rs-label">낙찰가율</div>
+          <div class="rs-value ${r.changeDir}">${r.auctionRate}</div>
+        </div>
+        <div class="region-stat">
+          <div class="rs-label">AI 투자점수</div>
+          <div class="rs-value ${r.score >= 80 ? 'up' : r.score >= 60 ? '' : 'down'}">${r.score}점</div>
+        </div>
+      </div>
+      <div class="region-bar-section">
+        <div class="rbs-label"><span>투자 매력도</span><span>${r.score}/100</span></div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:${r.score}%; background:${r.score>=80?'var(--success)':r.score>=60?'var(--primary)':'var(--warning)'}"></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:4px; flex-wrap:wrap;">
+        ${r.tags.map(t => `<span style="background:rgba(79,60,201,0.07);color:var(--primary);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(el, type, val) {
+  // 같은 그룹 내 active 해제
+  el.closest('.filter-bar').querySelectorAll('.filter-chip').forEach(c => {
+    // 같은 그룹
+    if (c.getAttribute('onclick') && c.getAttribute('onclick').includes("'"+type+"'")) {
+      c.classList.remove('active');
+    }
+  });
+  el.classList.add('active');
+  renderRegions(regions); // 실서비스에서 필터 적용
+}
+
+function filterByRegion(name) { /* 지도 연동 예정 */ }
+
+function goAnalysis(name) {
+  window.location.href = 'villa-analysis.html';
+}
+
+renderRegions(regions);
+</script>
+</body>
+</html>
